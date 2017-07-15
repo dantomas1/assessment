@@ -9,13 +9,13 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
 
  class Post < ActiveRecord::Base
 
-   belongs_to :user
+    belongs_to :user
 
-   has_many :comments
+    has_many :comments
 
-   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+    scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
 
-   scope :pablish, -> () { where(status: "publish")}
+    scope :pablish, -> () { where(status: "publish")}
  
  end
  
@@ -167,51 +167,64 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
  included is a hook that is called when an include happens. To use this self.included method in a mixin we embed singleton method inside, be aware you cannot define and instance method this way else it will result in a Nested method error. So to call the instance method of the module inside the class we will have to instantiate it first with "x = Orange.new", only then we can call it. 
  
  module Color
-   def self.included(klass)
-     def klass.primary_color
-	   puts "Module primary(class) color"
-	 end
+
+    def self.included(klass)
+
+       def klass.primary_color
+          puts "Module primary(class) color"
+       end
+
     end
+
     def yellow
        puts "i'm yellow"
     end
+
  end
 
-  class Orange
+ class Orange
+
     include Color
 
-     def self.ripe_orange
-       puts "I'm ripe orange"
-     end
-     def tiny
+    def self.ripe_orange
+      puts "I'm ripe orange"
+    end
+    def tiny
        puts "tiny orange"
-     end
+    end
 
  end	
 
-   x = Orange.new
-   Orange.ripe_orange      #I'm ripe orange
-   x.tiny                  #tiny orange
-   Orange.primary_color    #Module primary (class) color
-   x.yellow                #i'm yellow
+ x = Orange.new
+
+ Orange.ripe_orange      #I'm ripe orange
+
+ x.tiny                  #tiny orange
+
+ Orange.primary_color    #Module primary (class) color
+
+ x.yellow                #i'm yellow
    
    But there is another way to use the included hook.
    
    
-   module Color
+ module Color
 
     def yellow
        puts "i'm yellow"
     end
+
  end
 
-  class Orange
+ class Orange
+
     class << self
-      include Color
-	end
-   end
+       include Color
+    end
+
+ end
    
-   Orange.yellow     #i'm yellow
+ Orange.yellow     #i'm yellow
    
    Here we mix in the instance methods of a module as a class methods using include, works the same as the self.included with it's inner singleton methods.
 
@@ -219,11 +232,15 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
 
 Why is it bad to use rescue in the following manner? What do you understand about the ruby exception hierarchy?
 
-begin
-  do_something()
-rescue Exception => e
-  puts e
-end
+ begin
+ 
+    do_something()
+
+    rescue Exception => e
+
+    puts e
+
+ end
 
 Because Exeption is the root of Ruby's exception hierarchy, it is the sire of all the exceptions, so when you rescue it, you rescue everything including subclasses such as SyntaxError(evals that fail will do so silently, LoadError, and Interrupt (prevents the user from using CTRLC to exit the program). It is much better to narrow rescue to a particular error instead of broadening it. 
 
@@ -239,18 +256,20 @@ Given the following data, write a SQL query to list the duplicate gloves (for bo
 This is quite straightforward with the help of Active Record scope. As shown below.
 
   #app/models/glove.rb
-  class Glove < ActiveRecord::Base
+
+ class Glove < ActiveRecord::Base
 
     scope :duplis, -> { select(:transaction_id,:glove_type).group(:transaction_id,:glove_type).having("count(*) > 1") }
 
-  end
+ end
 
    #app/controllers/gloves_controller.rb
-   class GlovesController < ApplicationController
 
-     def index
+ class GlovesController < ApplicationController
+
+    def index
       @dups = Glove.duplis
-     end
+    end
 
-   end
+ end
 
