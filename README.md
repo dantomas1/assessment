@@ -34,7 +34,7 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
  
  Because Active Record scope can be associated with a Proc(built-in class) represents a Ruby block as an object, like blocks they carry around context where they were defined. Therefore Ctive Record scope may have arguements, that is why we are able to run this inside the Post model :
    
-   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+   scope :drafts, ->() {where(status: "publish").limit(1000).update_all(status: "draft")}
 	
 	
 
