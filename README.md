@@ -6,70 +6,8 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
 1000 draft Articles to be updated to published. There are many ways to do it but I think creating a scope relation inside the Post model and then create a subclass for Post class, possibly named publish with controller and index route. Then from #app/controllers/draft_controller.rb you can create index action containing instance variable like this:
 
  #app/models/post.rb 
+
  class Post < ActiveRecord::Base
-
- belongs_to :user
- has_many :comments
-
- scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
- scope :pablish, -> () { where(status: "publish")}
- 
- end
- 
- #app/models/draft.rb
- class Draft < Post
- end
- 
- #app/controllers/draft_controller.rb
- class DraftController < ApplicationController
-
- def index
-   @publish2only = Post.drafts
- end
- 
- end
- 
- Because Active Record scope can be associated with a Proc(built-in class) represents a Ruby block as an object, like blocks they carry around context where they were defined. Therefore Ctive Record scope may have arguements, that is why we are able to run this inside the Post model :
-    scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
-	
-	
-
-Given the following model tables, Use ActiveRecord to present the following serialized response. Optimize your code for performance.
-
-In this we will use ActiveModel::Serializers, it will create pretty JSON format, although the source of the data will be optimized with something like Materialized view concept in large project. So we will grab gem 'active_model_serializers', '~> 0.10.0' into our Gemfile and bundle install it. Then we run the "rails generate serializer user" (same for post and comment)  this will generate the user_serializer, and the two others inside serializer folder which is inside app folder. Then we open up the #app/serializers/user_serializer.rb and edit it this way:
-
-class UserSerializer < ActiveModel::Serializer
-  attributes :id, :username, :email
-  has_many :posts
-
-  class PostSerializer < ActiveModel::Serializer
-    attributes :id, :title, :comments
-    belongs_to :user
-
-  end
-end
-
- "The generated serializer will contain basic attributes and has_many/has_one/belongs_to declarations, based on the model." Quote from the official github page. 
- As you can see we embedded the PostSerializer inside UserSerializer and declared the comments object as an attribute and ofcourse reciprocated the relationship status declaration of UserSerializer. Ofcourse we have the models structured too:
- 
- #app/models/user.rb
- class User < ActiveRecord::Base
-
-  has_many :comments
-  has_many :posts
-
- end
- 
- #app/models/comments.rb
- class Comment < ActiveRecord::Base
-
-  belongs_to :post
-  belongs_to :user
-  
- end
- 
-  #app/models/post.rb 
-  class Post < ActiveRecord::Base
 
   belongs_to :user
   has_many :comments
@@ -78,35 +16,107 @@ end
   scope :pablish, -> () { where(status: "publish")}
  
   end
-  
-  #app/serializers/comment_serializer.rb
-  class CommentSerializer < ActiveModel::Serializer
  
-  attributes :id, :content
-  #:belongs_to :user
-  belongs_to :post
+  #app/models/draft.rb
+  
+  class Draft < Post
+   end
+ 
+ #app/controllers/draft_controller.rb
+ 
+ class DraftController < ApplicationController
+
+  def index
+   @publish2only = Post.drafts
+  end
+ 
+  end
+ 
+ Because Active Record scope can be associated with a Proc(built-in class) represents a Ruby block as an object, like blocks they carry around context where they were defined. Therefore Ctive Record scope may have arguements, that is why we are able to run this inside the Post model :
+   
+   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+	
+	
+
+Given the following model tables, Use ActiveRecord to present the following serialized response. Optimize your code for performance.
+
+In this we will use ActiveModel::Serializers, it will create pretty JSON format, although the source of the data will be optimized with something like Materialized view concept in large project. So we will grab gem 'active_model_serializers', '~> 0.10.0' into our Gemfile and bundle install it. Then we run the "rails generate serializer user" (same for post and comment)  this will generate the user_serializer, and the two others inside serializer folder which is inside app folder. Then we open up the #app/serializers/user_serializer.rb and edit it this way:
+
+  class UserSerializer < ActiveModel::Serializer
+   attributes :id, :username, :email
+   has_many :posts
+
+    class PostSerializer < ActiveModel::Serializer
+     attributes :id, :title, :comments
+     belongs_to :user
+
+    end
+ end
+
+ "The generated serializer will contain basic attributes and has_many/has_one/belongs_to declarations, based on the model." Quote from the official github page. 
+ As you can see we embedded the PostSerializer inside UserSerializer and declared the comments object as an attribute and ofcourse reciprocated the relationship status declaration of UserSerializer. Ofcourse we have the models structured too:
+ 
+   #app/models/user.rb
+ 
+  class User < ActiveRecord::Base
+
+   has_many :comments
+   has_many :posts
 
   end
  
-  #app/serializers/comment_serializer.rb
-  class PostSerializer < ActiveModel::Serializer
-  
-  attributes :id, :title
+  #app/models/comments.rb
+
+  class Comment < ActiveRecord::Base
+
+   belongs_to :post
    belongs_to :user
-   has_many :comments
   
  end
  
-  #app/controllers/users_controller.rb
+   #app/models/post.rb 
+ 
+  class Post < ActiveRecord::Base
+
+   belongs_to :user
+   has_many :comments
+
+   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+   scope :pablish, -> () { where(status: "publish")}
+ 
+  end
+  
+   #app/serializers/comment_serializer.rb
+
+   class CommentSerializer < ActiveModel::Serializer
+ 
+   attributes :id, :content
+    #:belongs_to :user
+   belongs_to :post
+
+   end
+ 
+  #app/serializers/comment_serializer.rb
+
+  class PostSerializer < ActiveModel::Serializer
+  
+   attributes :id, :title
+    belongs_to :user
+    has_many :comments
+   
+  end
+ 
+   #app/controllers/users_controller.rb
+
   class UsersController < ApplicationController
 
 
-  def index
-    @users = User.all
-    respond_to do |format|
+   def index
+     @users = User.all
+     respond_to do |format|
       format.json { render json: @users }
-    end
-  end
+     end
+   end
 
   def show
     @user = User.find(params[:id])
@@ -114,9 +124,9 @@ end
     respond_to do |format|
       format.json { render json: @user }
     end
-  end
+   end
 
- end
+  end
 
  When it is all routed corectly when you go to http://localhost:3000/users.json it will render the pretty JSON format as in the question, and it is done the rail way .
  
