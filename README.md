@@ -9,17 +9,20 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
 
  class Post < ActiveRecord::Base
 
-  belongs_to :user
-  has_many :comments
+   belongs_to :user
 
-  scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
-  scope :pablish, -> () { where(status: "publish")}
+   has_many :comments
+
+   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+
+   scope :pablish, -> () { where(status: "publish")}
  
-  end
+ end
  
   #app/models/draft.rb
   
-  class Draft < Post
+   class Draft < Post
+
    end
  
  #app/controllers/draft_controller.rb
@@ -45,15 +48,20 @@ Given the following model tables, Use ActiveRecord to present the following seri
 In this we will use ActiveModel::Serializers, it will create pretty JSON format, although the source of the data will be optimized with something like Materialized view concept in large project. So we will grab gem 'active_model_serializers', '~> 0.10.0' into our Gemfile and bundle install it. Then we run the "rails generate serializer user" (same for post and comment)  this will generate the user_serializer, and the two others inside serializer folder which is inside app folder. Then we open up the #app/serializers/user_serializer.rb and edit it this way:
 
   class UserSerializer < ActiveModel::Serializer
-   attributes :id, :username, :email
-   has_many :posts
+
+    attributes :id, :username, :email
+
+    has_many :posts
 
     class PostSerializer < ActiveModel::Serializer
-     attributes :id, :title, :comments
-     belongs_to :user
+
+       attributes :id, :title, :comments
+
+       belongs_to :user
 
     end
- end
+
+  end
 
  "The generated serializer will contain basic attributes and has_many/has_one/belongs_to declarations, based on the model." Quote from the official github page. 
  As you can see we embedded the PostSerializer inside UserSerializer and declared the comments object as an attribute and ofcourse reciprocated the relationship status declaration of UserSerializer. Ofcourse we have the models structured too:
@@ -63,7 +71,8 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
   class User < ActiveRecord::Base
 
     has_many :comments
-   has_many :posts
+   
+    has_many :posts
 
   end
  
@@ -71,39 +80,46 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
 
   class Comment < ActiveRecord::Base
 
-   belongs_to :post
-   belongs_to :user
+    belongs_to :post
+
+    belongs_to :user
   
- end
+  end
  
    #app/models/post.rb 
  
   class Post < ActiveRecord::Base
 
-   belongs_to :user
-   has_many :comments
+    belongs_to :user
 
-   scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
-   scope :pablish, -> () { where(status: "publish")}
+    has_many :comments
+
+    scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+   
+    scope :pablish, -> () { where(status: "publish")}
  
   end
   
    #app/serializers/comment_serializer.rb
 
    class CommentSerializer < ActiveModel::Serializer
- 
-   attributes :id, :content
-    #:belongs_to :user
-   belongs_to :post
+
+     attributes :id, :content
+     
+     #:belongs_to :user
+
+     belongs_to :post
 
    end
  
   #app/serializers/comment_serializer.rb
 
   class PostSerializer < ActiveModel::Serializer
-  
-   attributes :id, :title
+
+    attributes :id, :title
+
     belongs_to :user
+
     has_many :comments
    
   end
