@@ -27,9 +27,11 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
  class DraftController < ApplicationController
 
   def index
-    @publish2only = Post.drafts
-  end
 
+     @publish2only = Post.drafts
+  
+  end
+ 
  end
  
  Because Active Record scope can be associated with a Proc(built-in class) represents a Ruby block as an object, like blocks they carry around context where they were defined. Therefore Ctive Record scope may have arguements, that is why we are able to run this inside the Post model :
@@ -111,19 +113,33 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
   class UsersController < ApplicationController
 
    def index
+
      @users = User.all
+
      respond_to do |format|
+
       format.json { render json: @users }
+
      end
+
    end
+
    def show
+
     @user = User.find(params[:id])
+
     @user = @user.posts
+
       respond_to do |format|
+
         format.json { render json: @user }
+
       end
+
     end
+
   end
+
 
  When it is all routed corectly when you go to http://localhost:3000/users.json it will render the pretty JSON format as in the question, and it is done the rail way .
  
