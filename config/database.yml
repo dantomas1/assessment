@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  encoding: utf-8
+  host: localhost
+  username: shine
+  password: shine
+  pool: 5
+development:
+  <<: *default
+  database: kaohc_development
+
+test:
+  <<: *default
+  database: kaohc_test
+
+production:
+  <<: *default
+  database: kaohc_production
+  username: mantli
+  password: <%= ENV['EMAIR_DATABASE_PASSWORD'] %>
+
+

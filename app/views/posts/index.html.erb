@@ -1,0 +1,19 @@
+<% @pabs.each do |post| %>
+ <%= post.id %>
+ <%= post.status %>
+<% end %> 
+<br/>
+<hr />
+
+<% @posts.each do |pub| %>
+ <h3><b>Status: </b><%= pub.status %></h3>
+ <h5><small>Title: <%= pub.title %></small></h5>
+<% end %>
+<br/>
+<%= link_to 'Draft All', draft_index_path %>
+nbsp
+<%= link_to 'Publlish', publish_index_path %>
+<br/>
+<%= link_to 'Publish all', publish_all_path %>
+<hr />
+
