@@ -13,9 +13,11 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
 
     has_many :comments
 
-    scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+    scope :publish1000, ->() {where(status: "draft").limit(1000).update_all(status: "published")}
 
-    scope :pablish, -> () { where(status: "publish")}
+    scope :drafts, ->() {where(status: "published").limit(2).update_all(status: "draft")}
+
+    scope :pablish, -> () { where(status: "published")}
  
  end
  
@@ -31,7 +33,7 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
 
   def index
 
-     @publish2only = Post.drafts
+     @publish2only = Post.publish1000
   
   end
  
@@ -39,7 +41,9 @@ Post.where(status: :draft).each { |p| p.update_attributes(status: :published}
  
  Because Active Record scope can be associated with a Proc(built-in class) represents a Ruby block as an object, like blocks they carry around context where they were defined. Therefore Ctive Record scope may have arguements, that is why we are able to run this inside the Post model :
    
-   scope :drafts, ->() {where(status: "publish").limit(1000).update_all(status: "draft")}
+   scope :drafts, ->() {where(status: "published").limit(1000).update_all(status: "draft")}
+   
+   scope :publish1000, ->() {where(status: "draft").limit(1000).update_all(status: "published")}
 	
 	
 
@@ -94,7 +98,9 @@ In this we will use ActiveModel::Serializers, it will create pretty JSON format,
 
     has_many :comments
 
-    scope :drafts, ->() {where(status: "publish").limit(2).update_all(status: "draft")}
+    scope :publish1000, ->() {where(status: "draft").limit(1000).update_all(status: "published")}
+
+    scope :drafts, ->() {where(status: "published").limit(2).update_all(status: "draft")}
    
     scope :pablish, -> () { where(status: "publish")}
  
